@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lái Xe Tránh Né</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #050508;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        #game-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            max-height: 750px;
+            background: #0a0b12;
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.35);
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(8, 9, 15, 0.92);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            text-align: center;
+            z-index: 10;
+        }
+        .hidden {
+            display: none !important;
+        }
+        h1 {
+            font-size: 26px;
+            margin: 0 0 8px 0;
+            color: #00f0ff;
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.8), 0 0 30px rgba(255, 0, 128, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        p {
+            color: #b0c4de;
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .mode-title {
+            font-size: 15px;
+            color: #ff007f;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 8px rgba(255, 0, 127, 0.6);
+        }
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 240px;
+        }
+        .btn {
+            padding: 14px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            border: 2px solid;
+            border-radius: 10px;
+            cursor: pointer;
+            background: transparent;
+            transition: all 0.25s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-easy {
+            border-color: #00ff66;
+            color: #00ff66;
+            box-shadow: 0 0 12px rgba(0, 255, 102, 0.3);
+        }
+        .btn-easy:hover, .btn-easy:active {
+            background: #00ff66;
+            color: #000;
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.7);
+        }
+        .btn-normal {
+            border-color: #00f0ff;
+            color: #00f0ff;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+        }
+        .btn-normal:hover, .btn-normal:active {
+            background: #00f0ff;
+            color: #000;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.7);
+        }
+        .btn-hard {
+            border-color: #ff0055;
+            color: #ff0055;
+            box-shadow: 0 0 12px rgba(255, 0, 85, 0.3);
+        }
+        .btn-hard:hover, .btn-hard:active {
+            background: #ff0055;
+            color: #fff;
+            box-shadow: 0 0 25px rgba(255, 0, 85, 0.7);
+        }
+
+        .hud {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+            z-index: 5;
+        }
+        .hud-item {
+            background: rgba(10, 11, 20, 0.75);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            font-size: 13px;
+            font-weight: bold;
+            backdrop-filter: blur(4px);
+        }
+        .score-val { color: #00f0ff; font-size: 15px; text-shadow: 0 0 6px rgba(0, 240, 255, 0.5); }
+        .lives-val { color: #ff0055; letter-spacing: 2px; text-shadow: 0 0 6px rgba(255, 0, 85, 0.5); }
+        .diff-val { color: #ffe600; font-size: 12px; text-transform: uppercase; }
+
+        .controls-mobile {
+            position: absolute;
+            bottom: 25px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-sizing: border-box;
+            z-index: 5;
+        }
+        .touch-btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(0, 240, 255, 0.1);
+            border: 2px solid rgba(0, 240, 255, 0.35);
+            color: #00f0ff;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(6px);
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+        }
+        .touch-btn:active {
+            background: rgba(0, 240, 255, 0.35);
+            border-color: #00f0ff;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-wrapper">
+    <!-- HUD Hiển thị thông tin -->
+    <div class="hud">
+        <div class="hud-item">ĐIỂM: <span id="score" class="score-val">0</span></div>
+        <div class="hud-item"><span id="diff-label" class="diff-val">VỪA</span></div>
+        <div class="hud-item">MẠNG: <span id="lives" class="lives-val">❤❤❤</span></div>
+    </div>
+
+    <canvas id="gameCanvas" width="400" height="700"></canvas>
+
+    <!-- Phím điều khiển cảm ứng cho điện thoại -->
+    <div class="controls-mobile">
+        <div class="touch-btn" id="btn-left">◄</div>
+        <div class="touch-btn" id="btn-right">►</div>
+    </div>
+
+    <!-- Màn hình Menu Bắt đầu -->
+    <div id="start-overlay" class="overlay">
+        <h1>LÁI XE TRÁNH NÉ</h1>
+        <p>Hệ thống lái xe tự động.<br>Sử dụng nút <b>Trái / Phải</b> để né tránh giao thông!</p>
+        <div class="mode-title">CHỌN MỨC ĐỘ</div>
+        <div class="btn-group">
+            <button class="btn btn-easy" onclick="startGame('easy')">DỄ</button>
+            <button class="btn btn-normal" onclick="startGame('normal')">VỪA</button>
+            <button class="btn btn-hard" onclick="startGame('hard')">KHÓ</button>
+        </div>
+    </div>
+
+    <!-- Màn hình Thua cuộc -->
+    <div id="gameover-overlay" class="overlay hidden">
+        <h1 style="color:#ff0055; text-shadow: 0 0 15px rgba(255, 0, 85,
